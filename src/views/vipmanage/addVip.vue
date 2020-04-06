@@ -68,24 +68,6 @@ export default {
         address: '上海市普陀区金沙江路 1518 弄',
         discount: 8,
         money: 988
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄',
-        discount: 7,
-        money: 2000
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄',
-        discount: 85,
-        money: 500
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄',
-        discount: 85,
-        money: 97
       }],
       dialogVisible: false,
       rechargeVisible: false
@@ -102,7 +84,8 @@ export default {
     handleDelete (index, row) {
       console.log(index, row);
       this.rechargeVisible = true
-    }
+    },
+    handleClose() {},
   },
 };
 </script>

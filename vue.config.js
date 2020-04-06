@@ -1,11 +1,12 @@
 const webpack = require("webpack")
+var HtmlWebpackPlugin = require("html-webpack-plugin")
 
 module.exports = {
   // eslint检查代码
   lintOnSave: false,
   // publicPath: "./",
   // publicPath: '/static/burn/',
-  publicPath: process.env.NODE_ENV === 'production' ? '/static/burn/' : './',
+  publicPath: process.env.NODE_ENV === "production" ? "/static/burn/" : "./",
   // 静态资源 (js、css、img、fonts)
   assetsDir: "static",
   // 默认情况下 babel-loader 忽略其中的所有文件 node_modules
@@ -17,7 +18,7 @@ module.exports = {
     https: false,
     hotOnly: false,
     // proxy: 'http://10.1.1.174',
-    
+
     before: (app) => {},
   },
   pluginOptions: {},

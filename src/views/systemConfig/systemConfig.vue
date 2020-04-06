@@ -54,7 +54,6 @@
       </span>
     </el-dialog>
   </div>
-
 </template>
 <script>
 import { get, postForm, post } from "../../utils/fetch";
@@ -67,7 +66,7 @@ export default {
       headers: {
         token: sessionStorage.getItem('token')
       },
-      url: ip,
+      // url: ip,
       icon: {
         name: '',
         fileType: 'icon'
@@ -134,168 +133,17 @@ export default {
   created () {
   },
   mounted () {
-    this.init()
+    // this.init()
   },
   methods: {
-    handleChange (file, fileList) {
-      this.fileList = fileList.slice(-1);
-    },
-    submitUpload () {
-      this.$refs.upload.submit();
-    },
-    // 重置
-    resetData () {
-      this.typeOptions = []
-      this.typeValue = ''
-      this.options = []
-      this.sortValue = ''
-      this.params = ''
-      this.positionGrade = ''
-      this.isPosition = false
-      this.isIcon = false
-      this.icon.name = ''
-    },
-    success (res, file) {
-      console.log(res)
-      if (res.code == 200) {
-        this.$message.success(res.message);
-        this.getData()
-      } else {
-        this.$message.error(res.message);
-      }
-    },
-    // 添加
-    add () {
-      if (this.isIcon) {
-        console.log(this.isIcon)
-        this.submitUpload()
-        this.getData()
-        this.resetData()
-      } else {
-        postForm(':9001/dictionary/saveDictionary', { rank: this.positionGrade, typeKey: this.sortValue, value: this.params }).then(res => {
-          console.log(res)
-          if (res.data.code == 200) {
-            this.$message.success(res.data.message);
-            this.getData()
-            this.resetData()
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-      }
-      this.addVisible = false
-      this.resetData()
-    },
-    handleCloses () {
-      this.resetData()
-      this.addVisible = false
-    },
-    // 分类change
-    sortChange (val) {
-      console.log(val)
-      val == 'application_icon' ? this.isIcon = true : this.isIcon = false
-    },
-    // 类型change
-    typeChange (val) {
-      val == 'position' ? this.isPosition = true : this.isPosition = false
-      postForm(':9001/dictionary/getNodes', { typeKey: val }).then(res => {
-        console.log(res)
-        this.options = []
-        this.sortValue = ''
-        this.options = res.data.data
-      })
-    },
-    clear () {
-      this.DomainCheckList = []
-      this.ConnectionCheckList = []
-      this.LoadBalancingCheckList = []
-      this.PositionCheckList = []
-      this.ResourceTypeCheckList = []
-      this.BrandCheckList = []
-      this.SoftwareTypeCheckList = []
-      this.ClassificationOfLicenseCheckList = []
-      this.OperatingSystemCheckList = []
-      this.knowledgeproblemsList = []
-      this.TrainingMaterialsList = []
-    },
-    // 删除
-    handleDelete () {
-
-
-
-
-
-      var arr = this.DomainCheckList.concat(this.ConnectionCheckList,
-        this.LoadBalancingCheckList,
-        this.PositionCheckList,
-        this.ResourceTypeCheckList,
-        this.BrandCheckList,
-        this.SoftwareTypeCheckList,
-        this.ClassificationOfLicenseCheckList,
-        this.OperatingSystemCheckList,
-        this.knowledgeproblemsList,
-        this.TrainingMaterialsList)
-      var img = this.SoftwareIconsCheckList.join(',')
-      console.log(this.SoftwareIconsCheckList)
-      if (arr.length == 0 && this.SoftwareIconsCheckList.length == 0) {
-        //  this.$message.error(this.$t('message.PleaseSelectAtLeastOneItem'));
-      } else {
-        postForm(':9001/dictionary/deleteDictionary', { ids: arr.join(','), iconIds: img }).then(res => {
-          if (res.data.code == 200) {
-            this.$message.success(res.data.message);
-            this.getData()
-            this.clear()
-          } else {
-            this.$message.error(res.data.message);
-          }
-        })
-      }
-
-      // post(':9001/icon/deleteImg', { ids: img }).then(res => {
-      //   this.$message(res.data.message);
-      //   this.getData()
-      // })
-    },
-    // 增加
     handleAddItem () {
       this.addVisible = true
-      post(':9001/dictionary/getNodes').then(res => {
-        console.log(res)
-        this.typeOptions = res.data.data
-        this.options = []
-        this.getData()
-      })
     },
-    // 关闭弹窗
-    handleClose (done) {
-      this.resetData()
-      done();
-    },
-    //   加载
-    init () {
-      this.getData()
-    },
-    //   获取数据
-    getData () {
-      post(':9001/dictionary/dataList').then(res => {
-        var data = res.data.data
-        this.Domain = data.domainTypeList
-        this.Connection = data.appConnectionTypeList
-        this.LoadBalancing = data.loadLevelingList
-        this.Position = data.positionTypeList
-        this.ResourceType = data.hardwareTypeList
-        this.Brand = data.hardwareBrandList
-        this.SoftwareType = data.appTypeList
-        this.ClassificationOfLicense = data.licensePatternList
-        this.OperatingSystem = data.osTypeList
-        this.knowledgeproblems = data.knowledgeProblemTypeList
-        this.TrainingMaterials = data.trainingMaterials
-      })
-      postForm(':9001/resourceFile/getFileListByFileType', { fileType: 'icon' }).then(res => {
-        console.log(res)
-        this.SoftwareIcons = res.data.data
-      })
-    }
+    handleClose () { },
+    handleDelete () { },
+    handleCloses () { },
+    add () { },
+    typeChange() {},
   }
 };
 </script>
@@ -308,7 +156,7 @@ export default {
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
   line-height: 40px;
-  margin-right 5px
+  margin-right: 5px;
 }
 
 #dictionaryTable {
