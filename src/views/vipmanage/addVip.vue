@@ -1,7 +1,7 @@
 <template>
   <div class="vip">
     <el-col :span="24" style="margin-bottom: 20px">
-      <el-button type="primary" size="small">添加会员</el-button>
+      <el-button type="primary" size="small" @click="handleAddVip">添加会员</el-button>
       <!-- <el-button type="warning" size="small">修改会员</el-button> -->
       <!-- <el-button type="danger" size="small">删除会员</el-button> -->
     </el-col>
@@ -47,11 +47,34 @@
         <el-button size="mini" type="primary" @click="rechargeVisible = false">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog class="dictdialog" :close-on-click-modal='false' :close-on-press-escape='false' title="添加会员" :visible.sync="vipVisible" width="420px" :before-close="handleClose">
+      <span class="reWidth" style="margin-right:15px;width:55px">姓名</span>
+      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">姓名</i></el-input>
+      <span style="font-size: 16px; color: red">*</span>
+      <br>
+      <span class="reWidth" style="margin-right:15px;width:55px">电话</span>
+      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">电话</i></el-input>
+      <span style="font-size: 16px; color: red">*</span>
+      <br>
+      <span class="reWidth" style="margin-right:15px;width:55px">金额</span>
+      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">元</i></el-input>
+      <span style="font-size: 16px; color: red">*</span>
+      <br>
+      <span class="reWidth" style="margin-right:15px;width:55px">折扣</span>
+      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">折</i></el-input>
+      <span style="font-size: 16px; color: red">*</span>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleCloses">取消</el-button>
+        <el-button type="primary" @click="add">确定</el-button>
+      </span>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
+import { postForm, get, post } from '../../utils/fetch'
 export default {
   name: '',
   props: {
@@ -70,7 +93,8 @@ export default {
         money: 988
       }],
       dialogVisible: false,
-      rechargeVisible: false
+      rechargeVisible: false,
+      vipVisible: false,
     };
   },
   mounted () {
@@ -85,7 +109,15 @@ export default {
       console.log(index, row);
       this.rechargeVisible = true
     },
-    handleClose() {},
+    handleClose () {
+      this.vipVisible = false
+    },
+    handleAddVip () {
+      this.vipVisible = true
+      postForm(':3009/writeData', {vipname: '天外荡流云', phone: '1863145'}).then(res => {
+        console.log(res)
+      })
+    },
   },
 };
 </script>
@@ -94,5 +126,32 @@ export default {
 .vip {
   // height: 100%;
   padding: 20px;
+}
+
+.dictdialog {
+  .el-dialog__body {
+    padding: 30px 20px !important;
+  }
+}
+
+.reInput {
+  width: 250px;
+  margin-bottom: 20px;
+}
+
+.hou {
+  height: 100%;
+  width: 25px;
+  text-align: center;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  line-height: 40px;
+  margin-right: 5px;
+}
+
+.reWidth {
+  text-align: right;
+  display: inline-block;
+  width: 70px;
 }
 </style>

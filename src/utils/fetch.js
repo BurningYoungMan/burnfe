@@ -75,15 +75,15 @@ export function put(url, data) {
 }
 
 // 请求拦截器
-axios.interceptors.request.use(
-  function(config) {
-    config.headers = Object.assign({}, config.headers, { token: sessionStorage.getItem("token") })
-    return config
-  },
-  function(error) {
-    return Promise.reject(error)
-  }
-)
+// axios.interceptors.request.use(
+//   function(config) {
+//     config.headers = Object.assign({}, config.headers, { token: sessionStorage.getItem("token") })
+//     return config
+//   },
+//   function(error) {
+//     return Promise.reject(error)
+//   }
+// )
 
 // console.log(router)
 // 返回状态判断(添加响应拦截器)
