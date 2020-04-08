@@ -6,13 +6,11 @@
       <!-- <el-button type="danger" size="small">删除会员</el-button> -->
     </el-col>
     <el-table :data="tableData" border style="width: 100%" height="700">
-      <el-table-column type="index" width='48px'>
+      <el-table-column show-overflow-tooltip prop="id" label="会员编号" width="80">
       </el-table-column>
-      <el-table-column show-overflow-tooltip prop="date" label="加入日期" width="200">
+      <el-table-column show-overflow-tooltip prop="vipname" label="会员姓名" width="200">
       </el-table-column>
-      <el-table-column show-overflow-tooltip prop="name" label="会员姓名" width="200">
-      </el-table-column>
-      <el-table-column show-overflow-tooltip prop="name" label="会员电话" width="200">
+      <el-table-column show-overflow-tooltip prop="phone" label="会员电话" width="200">
       </el-table-column>
       <el-table-column show-overflow-tooltip prop="discount" label="会员折扣" width="200">
       </el-table-column>
@@ -21,8 +19,8 @@
       <el-table-column show-overflow-tooltip prop="name" label="操作" width="300">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">消费</el-button>
-          <el-button size="mini" type="success" @click="handleDelete(scope.$index, scope.row)">充值</el-button>
-          <el-button size="mini" type="info" @click="handleDelete(scope.$index, scope.row)">记录</el-button>
+          <el-button size="mini" type="success" @click="handleRecharge(scope.$index, scope.row)">充值</el-button>
+          <el-button size="mini" type="info" @click="handleRecord(scope.$index, scope.row)">记录</el-button>
           <el-button type="danger" size="small">删除</el-button>
         </template>
       </el-table-column>
@@ -33,7 +31,24 @@
     </el-pagination>
 
     <el-dialog title="消费信息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-      <span>消费情况</span>
+      <el-row class="vipinfo">
+        <el-col :span="12">
+          <span>会员姓名: {{vipInfo.vipname}}</span>
+        </el-col>
+        <el-col :span="12">
+          <span>会员折扣: {{vipInfo.discount}}折</span>
+        </el-col>
+      </el-row>
+      <el-col :span="24"><span style="font-size: 22px">消费项目: </span><i class="el-icon-plus" style="font-size: 24px" @click="addPoject"></i><i class="el-icon-video-play" style="font-size: 24px; margin-left: 20px;" @click="calculator"></i></el-col>
+      <div v-for="(item, index) in consumptionItem" :key="index">
+        <span class="retWidth" style="margin-right:15px;width:55px">项目{{index + 1}}</span>
+        <el-input class="retInput" v-model="item.poject" placeholder="请输入"><i slot="suffix" class="hou">项目</i></el-input>
+        <span style="font-size: 16px; color: red">*</span>
+        <span class="retWidth" style="margin-right:15px;width:55px">金额</span>
+        <el-input class="retInput" v-model="item.money" placeholder="请输入"><i slot="suffix" class="hou">金额</i></el-input>
+        <span style="font-size: 16px; color: red">*</span>
+      </div>
+      <div>消费总额: {{consumptionMoney}}</div>
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
         <el-button size="mini" type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -49,23 +64,23 @@
     </el-dialog>
     <el-dialog class="dictdialog" :close-on-click-modal='false' :close-on-press-escape='false' title="添加会员" :visible.sync="vipVisible" width="420px" :before-close="handleClose">
       <span class="reWidth" style="margin-right:15px;width:55px">姓名</span>
-      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">姓名</i></el-input>
+      <el-input class="reInput" v-model="params.name" placeholder="请输入"><i slot="suffix" class="hou">姓名</i></el-input>
       <span style="font-size: 16px; color: red">*</span>
       <br>
       <span class="reWidth" style="margin-right:15px;width:55px">电话</span>
-      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">电话</i></el-input>
+      <el-input class="reInput" v-model="params.phone" placeholder="请输入"><i slot="suffix" class="hou">电话</i></el-input>
       <span style="font-size: 16px; color: red">*</span>
       <br>
       <span class="reWidth" style="margin-right:15px;width:55px">金额</span>
-      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">元</i></el-input>
+      <el-input class="reInput" v-model="params.money" placeholder="请输入"><i slot="suffix" class="hou">元</i></el-input>
       <span style="font-size: 16px; color: red">*</span>
       <br>
       <span class="reWidth" style="margin-right:15px;width:55px">折扣</span>
-      <el-input class="reInput" v-model="params" placeholder="请输入"><i slot="suffix" class="hou">折</i></el-input>
+      <el-input class="reInput" v-model="params.discount" placeholder="请输入"><i slot="suffix" class="hou">折</i></el-input>
       <span style="font-size: 16px; color: red">*</span>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleCloses">取消</el-button>
+        <!-- <el-button @click="handleCloses">取消</el-button> -->
         <el-button type="primary" @click="add">确定</el-button>
       </span>
     </el-dialog>
@@ -85,37 +100,80 @@ export default {
   },
   data () {
     return {
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄',
-        discount: 8,
-        money: 988
-      }],
+      tableData: [],
       dialogVisible: false,
       rechargeVisible: false,
       vipVisible: false,
+      params: {
+        name: '',
+        phone: '',
+        discount: '',
+        money: ''
+      },
+      vipInfo: {},
+      consumptionItem: [],
+      consumptionMoney: Number()
     };
   },
   mounted () {
-
+    this.getVipInfo()
   },
   methods: {
+    // 消费
     handleEdit (index, row) {
-      console.log(index, row);
       this.dialogVisible = true
+      this.vipInfo = row
+      console.log(index, row);
     },
-    handleDelete (index, row) {
+    // 添加消费项目
+    addPoject () {
+      this.consumptionItem.push({ poject: '', money: Number() })
+    },
+    // 计算消费金额
+    calculator() {
+      var num = Number()
+      var per = '0.' + this.vipInfo.discount
+      for(var i = 0; i < this.consumptionItem.length; i ++) {
+        num += parseInt(this.consumptionItem[i].money)
+      }
+      // 取小数点后一位
+      this.consumptionMoney = (num * parseFloat(per)).toFixed(1)
+    },
+    // 充值
+    handleRecharge (index, row) {
       console.log(index, row);
       this.rechargeVisible = true
     },
+    // 记录
+    handleRecord (index, row) {
+      // console.log(index, row);
+      // this.rechargeVisible = true
+    },
     handleClose () {
       this.vipVisible = false
+      this.dialogVisible = false
+      this.rechargeVisible = false
+
+      this.consumptionItem = []
+      this.consumptionMoney = Number()
     },
+    // 添加vip
     handleAddVip () {
       this.vipVisible = true
-      postForm(':3009/writeData', {vipname: '天外荡流云', phone: '1863145'}).then(res => {
+    },
+    add () {
+      if (this.params.name != '' && this.params.phone != '') {
+        postForm(':3009/writeData', this.params).then(res => {
+          console.log(res)
+          this.vipVisible = false
+          this.getVipInfo()
+        })
+      }
+    },
+    getVipInfo () {
+      get(':3009/getvip', {}).then(res => {
         console.log(res)
+        this.tableData = res.data
       })
     },
   },
@@ -126,6 +184,11 @@ export default {
 .vip {
   // height: 100%;
   padding: 20px;
+}
+
+.vipinfo {
+  font-size: 22px;
+  margin-bottom: 20px;
 }
 
 .dictdialog {
@@ -153,5 +216,16 @@ export default {
   text-align: right;
   display: inline-block;
   width: 70px;
+}
+
+.retWidth {
+  text-align: right;
+  display: inline-block;
+  width: 50px;
+}
+
+.retInput {
+  width: 150px;
+  margin-bottom: 20px;
 }
 </style>
