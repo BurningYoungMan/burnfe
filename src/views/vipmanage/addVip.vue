@@ -48,10 +48,10 @@
         <el-input class="retInput" v-model="item.money" placeholder="请输入"><i slot="suffix" class="hou">金额</i></el-input>
         <span style="font-size: 16px; color: red">*</span>
       </div>
-      <div>消费总额: {{consumptionMoney}}</div>
+      <div><span>消费总额: {{consumptionMoney}}</span><span>余额: {{balance}}</span></div>
       <span slot="footer" class="dialog-footer">
-        <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="mini" type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button size="mini" @click="handleClose">取 消</el-button>
+        <el-button size="mini" type="primary" @click="handleProjectConsumption">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -90,6 +90,7 @@
 
 <script>
 import { postForm, get, post } from '../../utils/fetch'
+// import pinyin from '../../utils/Convert_Pinyin'
 export default {
   name: '',
   props: {
@@ -112,11 +113,13 @@ export default {
       },
       vipInfo: {},
       consumptionItem: [],
-      consumptionMoney: Number()
+      consumptionMoney: Number(),
+      balance: Number()
     };
   },
   mounted () {
     this.getVipInfo()
+    
   },
   methods: {
     // 消费
@@ -138,6 +141,19 @@ export default {
       }
       // 取小数点后一位
       this.consumptionMoney = (num * parseFloat(per)).toFixed(1)
+      this.balance = (this.vipInfo.money - this.consumptionMoney).toFixed(1)
+    },
+    // 传递剩余金额和消费信息
+    handleProjectConsumption() {
+      post(':3009/projectConsumption', {id: this.vipInfo.id, money: this.balance}).then(res => {
+        console.log(res)
+        this.getVipInfo()
+        this.handleClose()
+        this.dialogVisible = false
+      })
+      post(':3009/recordWriteData', {tableInfo: pinyin.getFullChars(this.vipInfo.vipname) + this.vipInfo.phone, recordInfo: JSON.stringify(this.consumptionItem)}).then(res => {
+        console.log(res)
+      })
     },
     // 充值
     handleRecharge (index, row) {
@@ -156,6 +172,7 @@ export default {
 
       this.consumptionItem = []
       this.consumptionMoney = Number()
+      this.balance = Number()
     },
     // 添加vip
     handleAddVip () {
@@ -167,6 +184,9 @@ export default {
           console.log(res)
           this.vipVisible = false
           this.getVipInfo()
+        })
+        postForm(':3009/createRecordTable', {tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone}).then(res => {
+          console.log(res)
         })
       }
     },
