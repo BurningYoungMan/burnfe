@@ -6,7 +6,7 @@
         class="logo"
         :class="collapsed ? 'logo-collapse-width' : 'logo-width'"
       >
-        XX系统管理1
+        XX系统管理
       </el-col>
       <!-- <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'"> -->
       <!-- <img src="../assets/img/logofff.png" alt=""> -->
