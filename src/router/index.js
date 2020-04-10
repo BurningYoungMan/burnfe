@@ -46,20 +46,20 @@ var login = [
       },
     ],
   },
-  {
-    path: "/consumption",
-    name: "消费管理",
-    component: Consumption,
-    hidden: false,
-    iconCls: "el-icon-s-data",
-  },
-  {
-    path: "/systemConfig",
-    name: "系统配置",
-    component: SystemConfig,
-    hidden: false,
-    iconCls: "el-icon-s-data",
-  }
+  // {
+  //   path: "/consumption",
+  //   name: "消费管理",
+  //   component: Consumption,
+  //   hidden: false,
+  //   iconCls: "el-icon-s-data",
+  // },
+  // {
+  //   path: "/systemConfig",
+  //   name: "系统配置",
+  //   component: SystemConfig,
+  //   hidden: false,
+  //   iconCls: "el-icon-s-data",
+  // }
 ]
 
 // login.concat(routerMap)

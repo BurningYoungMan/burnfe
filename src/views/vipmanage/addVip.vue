@@ -27,9 +27,10 @@
       <!-- <el-table-column show-overflow-tooltip prop="address" label="备注">
       </el-table-column> -->
     </el-table>
-    <el-pagination style="margin: 0!important; padding: 20px 0!important;" background layout="total,sizes,prev, pager, next, jumper" :total="1000">
+    <el-pagination style="margin: 0!important; padding: 20px 0!important;" background layout="total,sizes,prev, pager, next, jumper" :total="tableData.length">
     </el-pagination>
 
+    <!-- 消费情况 -->
     <el-dialog title="消费信息" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
       <el-row class="vipinfo">
         <el-col :span="12">
@@ -56,12 +57,29 @@
     </el-dialog>
 
     <el-dialog title="充值信息" :visible.sync="rechargeVisible" width="30%" :before-close="handleClose">
-      <span>充值情况</span>
+      <el-row class="vipinfo">
+        <el-col :span="12">
+          <span>会员姓名: {{vipInfo.vipname}}</span>
+        </el-col>
+        <el-col :span="12">
+          <span>会员电话: {{vipInfo.phone}}</span>
+        </el-col>
+      </el-row>
+      <span class="retWidth" style="margin-right:15px;width:80px">充值金额</span>
+      <el-input class="retInput" v-model="rechargeInfo.money" placeholder="请输入" @blur="addMoney"><i slot="suffix" class="hou">金额</i></el-input>
+      <span style="font-size: 16px; color: red">*</span>
+      <span class="retWidth" style="margin-right:15px;width:80px">会员折扣</span>
+      <el-input class="retInput" v-model="rechargeInfo.discount" placeholder="请输入"><i slot="suffix" class="hou">折扣</i></el-input>
+      <span style="font-size: 16px; color: red">*</span>
+      <span class="retWidth" style="margin-right:15px;width:80px">剩余金额</span>
+      <el-input class="retInput" v-model="rechargeInfo.surplusMoney" placeholder="请输入" disabled><i slot="suffix" class="hou">金额</i></el-input>
+
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" @click="rechargeVisible = false">取 消</el-button>
-        <el-button size="mini" type="primary" @click="rechargeVisible = false">确 定</el-button>
+        <el-button size="mini" type="primary" @click="editData">确 定</el-button>
       </span>
     </el-dialog>
+
     <el-dialog class="dictdialog" :close-on-click-modal='false' :close-on-press-escape='false' title="添加会员" :visible.sync="vipVisible" width="420px" :before-close="handleClose">
       <span class="reWidth" style="margin-right:15px;width:55px">姓名</span>
       <el-input class="reInput" v-model="params.name" placeholder="请输入"><i slot="suffix" class="hou">姓名</i></el-input>
@@ -114,12 +132,18 @@ export default {
       vipInfo: {},
       consumptionItem: [],
       consumptionMoney: Number(),
-      balance: Number()
+      balance: Number(),
+      rechargeInfo: {
+        id: '',
+        money: Number(),
+        discount: Number(),
+        surplusMoney: Number()
+      },
     };
   },
   mounted () {
     this.getVipInfo()
-    
+
   },
   methods: {
     // 消费
@@ -133,10 +157,10 @@ export default {
       this.consumptionItem.push({ poject: '', money: Number() })
     },
     // 计算消费金额
-    calculator() {
+    calculator () {
       var num = Number()
       var per = '0.' + this.vipInfo.discount
-      for(var i = 0; i < this.consumptionItem.length; i ++) {
+      for (var i = 0; i < this.consumptionItem.length; i++) {
         num += parseInt(this.consumptionItem[i].money)
       }
       // 取小数点后一位
@@ -144,14 +168,14 @@ export default {
       this.balance = (this.vipInfo.money - this.consumptionMoney).toFixed(1)
     },
     // 传递剩余金额和消费信息
-    handleProjectConsumption() {
-      post(':3009/projectConsumption', {id: this.vipInfo.id, money: this.balance}).then(res => {
+    handleProjectConsumption () {
+      post(':3009/projectConsumption', { id: this.vipInfo.id, money: this.balance }).then(res => {
         console.log(res)
         this.getVipInfo()
         this.handleClose()
         this.dialogVisible = false
       })
-      post(':3009/recordWriteData', {tableInfo: pinyin.getFullChars(this.vipInfo.vipname) + this.vipInfo.phone, recordInfo: JSON.stringify(this.consumptionItem)}).then(res => {
+      post(':3009/recordWriteData', { tableInfo: pinyin.getFullChars(this.vipInfo.vipname) + this.vipInfo.phone, recordInfo: JSON.stringify(this.consumptionItem) }).then(res => {
         console.log(res)
       })
     },
@@ -159,20 +183,41 @@ export default {
     handleRecharge (index, row) {
       console.log(index, row);
       this.rechargeVisible = true
+      this.vipInfo = row
+      this.rechargeInfo.id = row.id
+      this.rechargeInfo.surplusMoney = this.vipInfo.money
+    },
+    // 剩余金额计算
+    addMoney() {
+      this.rechargeInfo.surplusMoney = parseFloat(this.vipInfo.money) + parseFloat(this.rechargeInfo.money)
+    },
+    editData() {
+      post(':3009/rechargeDiscount', this.rechargeInfo).then(res => {
+        console.log(res)
+        this.getVipInfo()
+        this.handleClose()
+      })
     },
     // 记录
     handleRecord (index, row) {
       // console.log(index, row);
       // this.rechargeVisible = true
     },
+    // 关闭dialog
     handleClose () {
       this.vipVisible = false
       this.dialogVisible = false
       this.rechargeVisible = false
 
+      // 消费
       this.consumptionItem = []
       this.consumptionMoney = Number()
       this.balance = Number()
+      // 充值
+      this.rechargeInfo.id = ''
+      this.rechargeInfo.money = Number()
+      this.rechargeInfo.discount = Number()
+      this.rechargeInfo.surplusMoney = Number()
     },
     // 添加vip
     handleAddVip () {
@@ -185,7 +230,7 @@ export default {
           this.vipVisible = false
           this.getVipInfo()
         })
-        postForm(':3009/createRecordTable', {tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone}).then(res => {
+        postForm(':3009/createRecordTable', { tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone }).then(res => {
           console.log(res)
         })
       }
@@ -196,6 +241,8 @@ export default {
         this.tableData = res.data
       })
     },
+    // 分页
+
   },
 };
 </script>
