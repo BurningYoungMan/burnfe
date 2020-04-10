@@ -1,8 +1,12 @@
 <template>
   <el-row class="container">
     <el-col :span="24" class="header">
-      <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'">
-        XX系统管理
+      <el-col
+        :span="10"
+        class="logo"
+        :class="collapsed ? 'logo-collapse-width' : 'logo-width'"
+      >
+        XX系统管理1
       </el-col>
       <!-- <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'"> -->
       <!-- <img src="../assets/img/logofff.png" alt=""> -->
@@ -15,29 +19,63 @@
           <div @click="mailVisible = true"  style="width: 100%; height: 100%;cursor: pointer;">{{$t('message.StandInsideLetter')}}</div>
         </el-badge> -->
         <el-dropdown class="disLeft" trigger="hover">
-          <span class="el-dropdown-link userinfo-inner"><img style="float: left" src="../assets/user.jpg" /> {{sysUserName}}</span>
+          <span class="el-dropdown-link userinfo-inner"
+            ><img style="float: left" src="../assets/user.jpg" />
+            {{ sysUserName }}</span
+          >
           <el-dropdown-menu slot="dropdown">
             <!-- <el-dropdown-item>我的消息</el-dropdown-item>
             <el-dropdown-item>设置</el-dropdown-item> -->
-            <el-dropdown-item @click.native="uploadPassword">修改密码</el-dropdown-item>
-            <el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
+            <el-dropdown-item @click.native="uploadPassword"
+              >修改密码</el-dropdown-item
+            >
+            <el-dropdown-item divided @click.native="logout"
+              >退出登录</el-dropdown-item
+            >
           </el-dropdown-menu>
         </el-dropdown>
       </div>
       <!-- 消息 -->
-      <el-col :span="4" class="look">
-      </el-col>
+      <el-col :span="4" class="look"> </el-col>
     </el-col>
     <el-col :span="24" class="main">
-      <aside :class="collapsed?'menu-collapsed':'menu-expanded'">
+      <aside :class="collapsed ? 'menu-collapsed' : 'menu-expanded'">
         <!--导航菜单-->
-        <el-menu :default-active="$route.path" class="el-menu-vertical-demo" @open="handleopen" @close="handleclose" @select="handleselect" unique-opened router>
-          <template v-for="(item,index) in $router.options.routes" v-if="!item.hidden">
-            <el-submenu :key="item.name" :index="index+''" v-if="item.children&&item.children.length > 0">
-              <template slot="title"><i :class="item.iconCls"></i>{{item.name}}</template>
-              <el-menu-item v-for="child in item.children" :index="child.path" :key="child.path" v-if="!child.hidden">{{child.name}}</el-menu-item>
+        <el-menu
+          :default-active="$route.path"
+          class="el-menu-vertical-demo"
+          @open="handleopen"
+          @close="handleclose"
+          @select="handleselect"
+          unique-opened
+          router
+        >
+          <template
+            v-for="(item, index) in $router.options.routes"
+            v-if="!item.hidden"
+          >
+            <el-submenu
+              :key="item.name"
+              :index="index + ''"
+              v-if="item.children && item.children.length > 0"
+            >
+              <template slot="title"
+                ><i :class="item.iconCls"></i>{{ item.name }}</template
+              >
+              <el-menu-item
+                v-for="child in item.children"
+                :index="child.path"
+                :key="child.path"
+                v-if="!child.hidden"
+                >{{ child.name }}</el-menu-item
+              >
             </el-submenu>
-            <el-menu-item :key="item.name" v-if="!item.children||item.children.length<0" :index="item.path"><i :class="item.iconCls"></i>{{item.name}}</el-menu-item>
+            <el-menu-item
+              :key="item.name"
+              v-if="!item.children || item.children.length < 0"
+              :index="item.path"
+              ><i :class="item.iconCls"></i>{{ item.name }}</el-menu-item
+            >
           </template>
         </el-menu>
       </aside>
@@ -55,15 +93,15 @@
 </template>
 
 <script>
-import { postForm, get, post } from '../utils/fetch'
+import { postForm, get, post } from "../utils/fetch";
 export default {
-  data () {
+  data() {
     return {
       menu: [],
       // 是否显示标记
       isHidden: true,
       // 搜索内容
-      searchData: '',
+      searchData: "",
       // 发送记录
       sendOld: [],
       // 接收记录
@@ -75,65 +113,63 @@ export default {
       meauworkvalue: 0,
       meauworkhidden: false,
       // 接收记录搜索值
-      thirdData: '',
+      thirdData: "",
       addressData: [],
       defaultProps: {
-        label: 'name'
+        label: "name"
       },
       transferData: [],
       transferValue: [],
       personnel: [],
-      receiptId: '',
-      receiptName: '',
+      receiptId: "",
+      receiptName: "",
       value2: false,
-      input1: '',
-      input2: '',
-      input3: '',
+      input1: "",
+      input2: "",
+      input3: "",
       // 密码from
       formInline: {
-        userId: '',
-        oldPassword: '',
-        newPassword: '',
-        twicePassword: ''
+        userId: "",
+        oldPassword: "",
+        newPassword: "",
+        twicePassword: ""
       },
       addResseeVisi: false,
       dialogVisible: false,
       mailVisible: false,
-      activeName: 'first',
-      sysName: '云平台',
+      activeName: "first",
+      sysName: "云平台",
       collapsed: false,
-      sysUserName: '',
-      sysUserAvatar: '',
-      userId: '',
+      sysUserName: "",
+      sysUserAvatar: "",
+      userId: "",
       form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
+        name: "",
+        region: "",
+        date1: "",
+        date2: "",
         delivery: false,
         type: [],
-        resource: '',
-        desc: ''
+        resource: "",
+        desc: ""
       }
-    }
+    };
   },
   methods: {
     handleselect() {},
     handleopen() {},
-    handleclose() {},
+    handleclose() {}
   },
-  mounted () {
-    var user = sessionStorage.getItem('user');
+  mounted() {
+    var user = sessionStorage.getItem("user");
     if (user) {
       user = JSON.parse(user);
-      this.sysUserName = user.realName || '';
-      this.sysUserAvatar = user.avatar || '';
-      this.userId = user.userId
+      this.sysUserName = user.realName || "";
+      this.sysUserAvatar = user.avatar || "";
+      this.userId = user.userId;
     }
-    
   }
-}
-
+};
 </script>
 <style>
 .chagrpd .el-dialog__body {
