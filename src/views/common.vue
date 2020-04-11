@@ -2,7 +2,7 @@
   <el-row class="container">
     <el-col :span="24" class="header">
       <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'">
-        XX系统管理
+        XX系统管理1
       </el-col>
       <!-- <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'"> -->
       <!-- <img src="../assets/img/logofff.png" alt=""> -->
