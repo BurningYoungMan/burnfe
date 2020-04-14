@@ -2,6 +2,7 @@
   <div class="vip">
     <el-col :span="24" style="margin-bottom: 20px">
       <el-button type="primary" size="small" @click="handleAddVip">添加会员</el-button>
+      <el-button style="float: right;" type="primary" size="small" @click="backupInformation">备份信息</el-button>
     </el-col>
     <el-col :span="24" style="margin-bottom: 20px">
       <el-input clearable placeholder="请输入会员电话" v-model="searchKey" class="input-with-select" @clear="handleClear">
@@ -25,7 +26,7 @@
             <el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">消费</el-button>
             <el-button size="mini" type="success" @click="handleRecharge(scope.$index, scope.row)">充值</el-button>
             <el-button size="mini" type="info" @click="handleRecord(scope.$index, scope.row)">记录</el-button>
-            <el-button type="danger" size="small">删除</el-button>
+            <el-button type="danger" size="small" @click='handleDeleteVip(scope.$index, scope.row)'>删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -66,7 +67,7 @@
           <div style="text-align: center; width: 100%">会员折扣: {{vipInfo.discount}}折</div>
         </el-col>
       </el-row>
-      <el-col :span="24"><span style="font-size: 22px">消费项目: </span><i class="el-icon-plus" style="font-size: 24px" @click="addPoject"></i><i class="el-icon-video-play" style="font-size: 24px; margin-left: 20px;" @click="calculator"></i></el-col>
+      <el-col :span="24"><span style="font-size: 22px">消费项目: </span><i class="el-icon-plus" style="font-size: 24px" @click="addPoject"></i><i class="el-icon-video-play" style="font-size: 24px; margin-left: 20px;"></i></el-col>
       <div v-for="(item, index) in consumptionItem" :key="index">
         <!-- <el-row> -->
         <el-col :span="12">
@@ -201,7 +202,6 @@ export default {
     handleEdit (index, row) {
       this.dialogVisible = true
       this.vipInfo = row
-      console.log(index, row);
     },
     // 添加消费项目
     addPoject () {
@@ -210,7 +210,6 @@ export default {
       var month = date.getMonth() + 1;
       var day = date.getDate();
       var nowDate = year + '-' + month + '-' + day;
-      console.log(nowDate)
       this.consumptionItem.push({ project: '', money: Number(), date: nowDate, remarks: '普通消费' })
     },
     // 计算消费金额
@@ -226,19 +225,17 @@ export default {
     },
     // 传递剩余金额和消费信息
     handleProjectConsumption () {
+      this.calculator()
       post(':3009/projectConsumption', { id: this.vipInfo.id, money: this.balance }).then(res => {
-        console.log(res)
         this.getVipInfo()
         this.handleClose()
         this.dialogVisible = false
       })
       post(':3009/recordWriteData', { tableInfo: pinyin.getFullChars(this.vipInfo.vipname) + this.vipInfo.phone, recordInfo: this.consumptionItem }).then(res => {
-        console.log(res)
       })
     },
     // 充值
     handleRecharge (index, row) {
-      console.log(index, row);
       this.rechargeVisible = true
       this.vipInfo = row
       this.rechargeInfo.id = row.id
@@ -251,7 +248,6 @@ export default {
     // 充值金额
     editData () {
       post(':3009/rechargeDiscount', this.rechargeInfo).then(res => {
-        console.log(res)
         this.getVipInfo()
         this.handleClose()
       })
@@ -260,18 +256,15 @@ export default {
       var month = date.getMonth() + 1;
       var day = date.getDate();
       var nowDate = year + '-' + month + '-' + day;
-      post(':3009/rechargeAmount', { tableInfo: pinyin.getFullChars(this.vipInfo.vipname) + this.vipInfo.phone, rechargeInfo: this.rechargeInfo, date: nowDate, remarks: '充值金额'}).then(res => {
-        console.log(res)
+      post(':3009/rechargeAmount', { tableInfo: pinyin.getFullChars(this.vipInfo.vipname) + this.vipInfo.phone, rechargeInfo: this.rechargeInfo, date: nowDate, remarks: '充值金额' }).then(res => {
       })
 
     },
     // 记录
     handleRecord (index, row) {
-      console.log(index, row);
       this.vipInfo = row
       this.historicalRecord = true
       post(':3009/tableRecord', { tableName: pinyin.getFullChars(row.vipname), phone: row.phone }).then(res => {
-        console.log(res.data)
         this.tableRecord = res.data
       })
     },
@@ -301,13 +294,25 @@ export default {
     handleAddVip () {
       this.vipVisible = true
     },
+    // 删除vip
+    handleDeleteVip (index, row) {
+      console.log(row)
+      console.log(pinyin.getFullChars(row.vipname) + row.phone)
+      post(':3009/deleteTable', { vipTable: pinyin.getFullChars(row.vipname) + row.phone, vipId: row.id }).then(res => {
+        this.getVipInfo()
+      })
+    },
     // 添加新用户
     add () {
       if (this.params.name != '' && this.params.phone != '') {
         postForm(':3009/writeData', this.params).then(res => {
-          console.log(res)
           this.vipVisible = false
           this.getVipInfo()
+          // 清空会员信息
+          this.params.name = ''
+          this.params.phone = ''
+          this.params.discount = ''
+          this.params.money = ''
         })
         var date = new Date();
         var year = date.getFullYear();
@@ -315,31 +320,26 @@ export default {
         var day = date.getDate();
         var nowDate = year + '-' + month + '-' + day;
         postForm(':3009/createRecordTable', { tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone, money: this.params.money, date: nowDate, remarks: '新开用户' }).then(res => {
-          console.log(res)
+
         })
         postForm(':3009/initUserRecord', { tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone, money: this.params.money, date: nowDate, remarks: '新开用户' }).then(res => {
-          console.log(res)
         })
       }
     },
     // 获取会员列表
     getVipInfo (curPage, pageSize, searchKey) {
       post(':3009/getvip', { curPage: curPage || 1, pageSize: pageSize || 10, searchKey: searchKey || '' }).then(res => {
-        console.log(res)
         this.tableData = res.data.data
         this.totalSize = res.data.total
       })
     },
     // 分页
     siziChange (val) {
-      console.log(val)
       this.pageSize = val
       this.getVipInfo(this.curPage, this.pageSize)
     },
     currentChange (val) {
-      console.log(val)
       this.curPage = val
-      console.log(this.curPage, this.pageSize)
       this.getVipInfo(this.curPage, this.pageSize)
     },
     // 搜索
@@ -350,6 +350,10 @@ export default {
     handleClear () {
       this.getVipInfo(this.curPage, this.pageSize, this.searchKey)
     },
+    // 备份信息
+    backupInformation () {
+      window.open("http://localhost/phpmyadmin/#PMAURL-2:db_export.php?db=nodesql&table=&server=1&target=&token=480e9bf281759f37d7014b526febcf5b", '_blank');
+    }
 
   },
 };
