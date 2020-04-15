@@ -67,7 +67,7 @@
           <div style="text-align: center; width: 100%">会员折扣: {{vipInfo.discount}}折</div>
         </el-col>
       </el-row>
-      <el-col :span="24"><span style="font-size: 22px">消费项目: </span><i class="el-icon-plus" style="font-size: 24px" @click="addPoject"></i><i class="el-icon-video-play" style="font-size: 24px; margin-left: 20px;" @click="calculator"></i></el-col>
+      <el-col :span="24"><span style="font-size: 22px">消费项目: </span><i class="el-icon-plus" style="font-size: 24px" @click="addPoject"></i><i class="el-icon-video-play" style="font-size: 24px; margin-left: 20px;"></i></el-col>
       <div v-for="(item, index) in consumptionItem" :key="index">
         <!-- <el-row> -->
         <el-col :span="12">
@@ -225,6 +225,7 @@ export default {
     },
     // 传递剩余金额和消费信息
     handleProjectConsumption () {
+      this.calculator()
       post(':3009/projectConsumption', { id: this.vipInfo.id, money: this.balance }).then(res => {
         this.getVipInfo()
         this.handleClose()
