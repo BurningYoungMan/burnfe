@@ -26,7 +26,7 @@
             <el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">消费</el-button>
             <el-button size="mini" type="success" @click="handleRecharge(scope.$index, scope.row)">充值</el-button>
             <el-button size="mini" type="info" @click="handleRecord(scope.$index, scope.row)">记录</el-button>
-            <el-button type="danger" size="small">删除</el-button>
+            <el-button type="danger" size="small" @click='handleDeleteVip(scope.$index, scope.row)'>删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -294,12 +294,25 @@ export default {
     handleAddVip () {
       this.vipVisible = true
     },
+    // 删除vip
+    handleDeleteVip (index, row) {
+      console.log(row)
+      console.log(pinyin.getFullChars(row.vipname) + row.phone)
+      post(':3009/deleteTable', { vipTable: pinyin.getFullChars(row.vipname) + row.phone, vipId: row.id }).then(res => {
+        this.getVipInfo()
+      })
+    },
     // 添加新用户
     add () {
       if (this.params.name != '' && this.params.phone != '') {
         postForm(':3009/writeData', this.params).then(res => {
           this.vipVisible = false
           this.getVipInfo()
+          // 清空会员信息
+          this.params.name = ''
+          this.params.phone = ''
+          this.params.discount = ''
+          this.params.money = ''
         })
         var date = new Date();
         var year = date.getFullYear();
@@ -307,6 +320,7 @@ export default {
         var day = date.getDate();
         var nowDate = year + '-' + month + '-' + day;
         postForm(':3009/createRecordTable', { tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone, money: this.params.money, date: nowDate, remarks: '新开用户' }).then(res => {
+
         })
         postForm(':3009/initUserRecord', { tableName: pinyin.getFullChars(this.params.name), phone: this.params.phone, money: this.params.money, date: nowDate, remarks: '新开用户' }).then(res => {
         })
